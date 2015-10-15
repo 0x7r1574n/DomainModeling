@@ -100,6 +100,9 @@ class Person {
     var job: Job?
     var spouse: Person?
     
+    let WORKING_AGE = 16 // Age below 16 cannot have a job or a spouse
+    let MARRIAGE_AGE = 18 // Age below 18 cannot have a spouse
+    
     init(firstName: String, lastName: String, age: Int, job: Job?, spouse: Person?) {
         self.firstName = firstName
         self.lastName = lastName
@@ -107,17 +110,13 @@ class Person {
         self.job = job
         self.spouse = spouse
         
-        let WORKINGAGE = 16
-        let MARRIAGEAGE = 18
-        
         // Input cleaning
-        // Age below 16 cannot have a job or a spouse
-        if age < WORKINGAGE {
+        if age < WORKING_AGE {
             self.job = nil
             self.spouse = nil
         }
-        // Age below 18 cannot have a spouse
-        if age < MARRIAGEAGE {
+        
+        if age < MARRIAGE_AGE {
             self.spouse = nil
             self.job = job
         }
@@ -146,12 +145,14 @@ class Person {
 class Family {
     var members: [Person]
     var isLegal: Bool
+    let LEGAL_AGE = 21
+    
     init(members: [Person]) {
         self.members = members
         self.isLegal = false
         for member in members {
             // a legal family contains at least one person that is aged above 21
-            if member.age >= 21 {
+            if member.age >= LEGAL_AGE {
                 self.isLegal = true
             }
         }
