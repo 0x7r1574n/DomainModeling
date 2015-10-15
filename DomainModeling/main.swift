@@ -70,14 +70,26 @@ struct Money {
 
 class Job {
     var title: String
-    enum Salary: Double {
-        case Yearly
-        case Hourly
-    }
-    var salary: Salary
-    init(title: String, salary: Salary) {
+    // first element is type of salary (annually/hourly), second element is the amount
+    var salary: (String, Double)
+    
+    init(title: String, salary: (String, Double)) {
         self.title = title
         self.salary = salary
+    }
+    
+    // calculate annual salary
+    func calculateIncome(annualHours: Double) -> Double {
+        if self.salary.0 != "Annual" {
+            return annualHours * self.salary.1
+        } else {
+            return self.salary.1
+        }
+    }
+    
+    // raises salary by passed percentage
+    func raise(percentage: Double) -> Void {
+        self.salary.1 *= (1.0 + percentage / 100.0)
     }
 }
 
@@ -94,37 +106,69 @@ class Person {
         self.age = age
         self.job = job
         self.spouse = spouse
+        
+        let WORKINGAGE = 16
+        let MARRIAGEAGE = 18
+        
         // Input cleaning
         // Age below 16 cannot have a job or a spouse
-        if age < 16 {
+        if age < WORKINGAGE {
             self.job = nil
             self.spouse = nil
         }
         // Age below 18 cannot have a spouse
-        if age < 18 {
+        if age < MARRIAGEAGE {
             self.spouse = nil
             self.job = job
         }
     }
     
     func toString() -> String {
+        // married and employed
         if self.spouse != nil && self.job != nil {
             return "\(firstName) \(lastName) is \(age) years old, working as a \(job!.title) and married to \(self.spouse!.firstName) \(self.spouse!.lastName)."
         }
+        // unmarried and employed
         else if self.spouse == nil && self.job != nil {
             return "\(firstName) \(lastName) is \(age) years old, working as a \(job!.title)."
         }
+        // married and unemployed
         else if self.spouse != nil && self.job == nil {
             return "\(firstName) \(lastName) is \(age) years old, married to \(self.spouse!.firstName) \(self.spouse!.lastName)."
         }
+        // unmarried and unemployed
         else {
             return "\(firstName) \(lastName) is \(age) years old."
         }
     }
 }
 
-
-
-
-
-
+class Family {
+    var members: [Person]
+    var isLegal: Bool
+    init(members: [Person]) {
+        self.members = members
+        self.isLegal = false
+        for member in members {
+            // a legal family contains at least one person that is aged above 21
+            if member.age >= 21 {
+                self.isLegal = true
+            }
+        }
+    }
+    
+    func householdIncome(individualAnnualHours: Double) -> Double {
+        var result = 0.0
+        for member in members {
+            if member.job != nil {
+                result += (member.job?.calculateIncome(individualAnnualHours))!
+            }
+        }
+        return result
+    }
+    
+    func haveChild(firstName: String, lastName: String, age: Int = 0) -> Void {
+        let baby = Person(firstName: firstName, lastName: lastName, age: age, job: nil, spouse: nil)
+        self.members.append(baby)
+    }
+}
