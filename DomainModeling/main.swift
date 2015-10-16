@@ -118,7 +118,6 @@ class Person {
         
         if age < MARRIAGE_AGE {
             self.spouse = nil
-            self.job = job
         }
     }
     
