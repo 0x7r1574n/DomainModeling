@@ -8,19 +8,35 @@
 
 import Foundation
 
-struct Money {
-    enum Currency {
-        case USD
-        case GBP
-        case CAN
-        case EUR
-    }
+protocol CustomStringConvertible {
+    var description: String { get }
+}
+
+protocol Mathematics {
+    mutating func add(other: Self) -> Void
+    mutating func subtract(other: Self) -> Void
+}
+
+extension Double {
+    var USD: Money { return Money(amount: self, currency: Currency.USD) }
+    var GBP: Money { return Money(amount: self, currency: Currency.GBP) }
+    var CAN: Money { return Money(amount: self, currency: Currency.CAN) }
+    var EUR: Money { return Money(amount: self, currency: Currency.EUR) }
+}
+
+enum Currency: String {
+    case USD, GBP, CAN, EUR
+}
+
+struct Money: CustomStringConvertible, Mathematics {
     var amount: Double
     var currency: Currency
+    var description: String
     
     init(amount: Double, currency: Currency) {
         self.amount = amount
         self.currency = currency
+        self.description = currency.rawValue + String(amount)
     }
     
     func convert(currency: Currency) -> Double {
@@ -177,3 +193,22 @@ class Family {
         self.members.append(baby)
     }
 }
+
+// Unit Tests
+
+print("======Extension======")
+print("2.USD.convert(Currency.EUR) = \(2.USD.convert(Currency.EUR))")
+print("2.5.USD.convert(Currency.GBP) = \(2.5.USD.convert(Currency.GBP))")
+print("3.USD.convert(Currency.CAN) = \(3.USD.convert(Currency.CAN))")
+print("8.USD.convert(Currency.USD) = \(8.USD.convert(Currency.USD))")
+print("")
+print("======Protocol Property======")
+print("1.USD.description = \(1.USD.description)")
+print("22.EUR.description = \(22.EUR.description)")
+print("")
+print("======Protocol Methods======")
+var oneBuck = 1.USD
+print("var oneBuck = 1.USD")
+oneBuck.add(1.GBP)
+print("oneBuck.add(1.GBP)")
+print("oneBuck.amount = \(oneBuck.amount)")
