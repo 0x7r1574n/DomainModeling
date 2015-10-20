@@ -57,11 +57,11 @@ struct Money {
         return self.amount
     }
     
-    mutating func add(other: Money) {
+    mutating func add(other: Money) -> Void {
         self.amount += other.convert(self.currency)
     }
     
-    mutating func subtract(other: Money) {
+    mutating func subtract(other: Money) -> Void {
         self.amount -= other.convert(self.currency)
     }
 }
@@ -131,7 +131,7 @@ class Person {
     func toString() -> String {
         // married and employed
         if self.spouse != nil && self.job != nil {
-            return "\(firstName) \(lastName) is \(age) years old, working as a \(job!.title) and married to \(self.spouse!.firstName) \(self.spouse!.lastName)."
+            return "\(firstName) \(lastName) is \(age) years old, working as a \(job!.title) and married to \(spouse!.firstName) \(spouse!.lastName)."
         }
         // unmarried and employed
         else if self.spouse == nil && self.job != nil {
@@ -139,7 +139,7 @@ class Person {
         }
         // married and unemployed
         else if self.spouse != nil && self.job == nil {
-            return "\(firstName) \(lastName) is \(age) years old, married to \(self.spouse!.firstName) \(self.spouse!.lastName)."
+            return "\(firstName) \(lastName) is \(age) years old, married to \(spouse!.firstName) \(spouse!.lastName)."
         }
         // unmarried and unemployed
         else {
