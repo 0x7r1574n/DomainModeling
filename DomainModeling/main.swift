@@ -9,87 +9,94 @@
 import Foundation
 
 struct Money {
+    enum Currency {
+        case USD
+        case GBP
+        case CAN
+        case EUR
+    }
     var amount: Double
-    var currency: String
+    var currency: Currency
     
-    init(amount: Double, currency: String) {
+    init(amount: Double, currency: Currency) {
         self.amount = amount
         self.currency = currency
     }
     
-    mutating func convert(currency: String) -> Void {
+    func convert(currency: Currency) -> Double {
         switch self.currency {
-        case "USD":
+        case .USD:
             switch currency {
-            case "USD": break
-            case "GBP": self.amount /= 2.0
-            case "CAN": self.amount *= 1.25
-            case "EUR": self.amount *= 1.5
+            case .GBP: return self.amount / 2.0
+            case .CAN: return self.amount * 1.25
+            case .EUR: return self.amount * 1.5
             default: break
             }
-        case "GBP":
+        case .GBP:
             switch currency {
-            case "USD": self.amount *= 2.0
-            case "GBP": break
-            case "CAN": self.amount *= 1.5
-            case "EUR": self.amount *= 2.5
+            case .USD: return self.amount * 2.0
+            case .CAN: return self.amount * 1.5
+            case .EUR: return self.amount * 2.5
             default: break
             }
-        case "CAN":
+        case .CAN:
             switch currency {
-            case "USD": self.amount /= 1.25
-            case "GBP": self.amount /= 1.5
-            case "CAN": break
-            case "EUR": self.amount *= 1.2
+            case .USD: return self.amount / 1.25
+            case .GBP: return self.amount / 1.5
+            case .EUR: return self.amount * 1.2
             default: break
             }
-        case "EUR":
+        case .EUR:
             switch currency {
-            case "USD": self.amount /= 1.5
-            case "GBP": self.amount /= 2.5
-            case "CAN": self.amount /= 1.2
-            case "EUR": break
+            case .USD: return self.amount / 1.5
+            case .GBP: return self.amount / 2.5
+            case .CAN: return self.amount / 1.2
             default: break
             }
-        default: break
         }
+        return self.amount
     }
     
     mutating func add(other: Money) {
-        var temp = other
-        temp.convert(self.currency)
-        self.amount += temp.amount
+        self.amount += other.convert(self.currency)
     }
     
     mutating func subtract(other: Money) {
-        var temp = other
-        temp.convert(self.currency)
-        self.amount -= temp.amount
+        self.amount -= other.convert(self.currency)
     }
 }
 
 class Job {
+    enum Salary {
+        case hourly(Double)
+        case annual(Double)
+    }
     var title: String
-    // first element is type of salary (annually/hourly), second element is the amount
-    var salary: (String, Double)
+    var salary: Salary
     
-    init(title: String, salary: (String, Double)) {
+    init(title: String, salary: Salary) {
         self.title = title
         self.salary = salary
     }
     
     // calculate annual salary
     func calculateIncome(annualHours: Double) -> Double {
-        if self.salary.0 != "Annual" {
-            return annualHours * self.salary.1
-        } else {
-            return self.salary.1
+        switch self.salary {
+        case .hourly(let amount):
+            return amount * annualHours
+        case .annual(let amount):
+            return amount
         }
     }
     
     // raises salary by passed percentage
     func raise(percentage: Double) -> Void {
-        self.salary.1 *= (1.0 + percentage / 100.0)
+        switch self.salary {
+        case .hourly(let amount):
+            self.salary = Salary.hourly(amount * (1.0 + (percentage / 100.0)))
+        case .annual(let amount):
+            self.salary = Salary.annual(amount * (1.0 + (percentage / 100.0)))
+        }
     }
 }
 
@@ -160,15 +167,13 @@ class Family {
     func householdIncome(individualAnnualHours: Double) -> Double {
         var result = 0.0
         for member in members {
-            if member.job != nil {
-                result += (member.job?.calculateIncome(individualAnnualHours))!
-            }
+            result += (member.job?.calculateIncome(individualAnnualHours))!
         }
         return result
     }
     
-    func haveChild(firstName: String, lastName: String, age: Int = 0) -> Void {
-        let baby = Person(firstName: firstName, lastName: lastName, age: age, job: nil, spouse: nil)
+    func haveChild(firstName: String, lastName: String) -> Void {
+        let baby = Person(firstName: firstName, lastName: lastName, age: 0, job: nil, spouse: nil)
         self.members.append(baby)
     }
 }
