@@ -206,8 +206,10 @@ class Family: CustomStringConvertible {
     }
     
     func haveChild(firstName: String, lastName: String) -> Void {
-        let baby = Person(firstName: firstName, lastName: lastName, age: 0, job: nil, spouse: nil)
-        self.members.append(baby)
+        if isLegal {
+            let baby = Person(firstName: firstName, lastName: lastName, age: 0, job: nil, spouse: nil)
+            self.members.append(baby)
+        }
     }
 }
 
