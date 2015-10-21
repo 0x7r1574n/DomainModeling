@@ -82,17 +82,25 @@ struct Money: CustomStringConvertible, Mathematics {
     }
 }
 
-class Job {
-    enum Salary {
-        case hourly(Double)
-        case annual(Double)
-    }
+enum Salary {
+    case hourly(Double)
+    case annual(Double)
+}
+
+class Job: CustomStringConvertible {
     var title: String
     var salary: Salary
+    var description: String
     
     init(title: String, salary: Salary) {
         self.title = title
         self.salary = salary
+        switch salary {
+        case .hourly(let amount):
+            self.description = "Title: \(title)\nHourly salary: \(amount)"
+        case .annual(let amount):
+            self.description = "Title: \(title)\nAnnual salary: \(amount)"
+        }
     }
     
     // calculate annual salary
@@ -116,12 +124,13 @@ class Job {
     }
 }
 
-class Person {
+class Person: CustomStringConvertible {
     var firstName: String
     var lastName: String
     var age: Int
     var job: Job?
     var spouse: Person?
+    var description: String
     
     let WORKING_AGE = 16 // Age below 16 cannot have a job or a spouse
     let MARRIAGE_AGE = 18 // Age below 18 cannot have a spouse
@@ -132,6 +141,7 @@ class Person {
         self.age = age
         self.job = job
         self.spouse = spouse
+        self.description = ""
         
         // Input cleaning
         if age < WORKING_AGE {
@@ -142,42 +152,49 @@ class Person {
         if age < MARRIAGE_AGE {
             self.spouse = nil
         }
-    }
-    
-    func toString() -> String {
+        
         // married and employed
         if self.spouse != nil && self.job != nil {
-            return "\(firstName) \(lastName) is \(age) years old, working as a \(job!.title) and married to \(spouse!.firstName) \(spouse!.lastName)."
+            self.description = "\(firstName) \(lastName) is \(age) years old, working as a \(self.job!.title) and married to \(self.spouse!.firstName) \(self.spouse!.lastName)."
         }
         // unmarried and employed
         else if self.spouse == nil && self.job != nil {
-            return "\(firstName) \(lastName) is \(age) years old, working as a \(job!.title)."
+            self.description = "\(firstName) \(lastName) is \(age) years old, working as a \(self.job!.title)."
         }
         // married and unemployed
         else if self.spouse != nil && self.job == nil {
-            return "\(firstName) \(lastName) is \(age) years old, married to \(spouse!.firstName) \(spouse!.lastName)."
+            self.description = "\(firstName) \(lastName) is \(age) years old, married to \(self.spouse!.firstName) \(self.spouse!.lastName)."
         }
         // unmarried and unemployed
         else {
-            return "\(firstName) \(lastName) is \(age) years old."
+            self.description = "\(firstName) \(lastName) is \(age) years old."
         }
+    }
+    
+    func toString() -> String {
+        return self.description
     }
 }
 
-class Family {
+class Family: CustomStringConvertible {
     var members: [Person]
     var isLegal: Bool
+    var description: String
     let LEGAL_AGE = 21
     
     init(members: [Person]) {
         self.members = members
         self.isLegal = false
+        self.description = ""
         for member in members {
             // a legal family contains at least one person that is aged above 21
             if member.age >= LEGAL_AGE {
                 self.isLegal = true
             }
+            self.description += "\(member.firstName) \(member.lastName), "
         }
+        let index = self.description.endIndex.advancedBy(-2)
+        self.description = self.description.substringToIndex(index)
     }
     
     func householdIncome(individualAnnualHours: Double) -> Double {
@@ -205,10 +222,30 @@ print("")
 print("======Protocol Property======")
 print("1.USD.description = \(1.USD.description)")
 print("22.EUR.description = \(22.EUR.description)")
+let researcher = Job(title: "researcher", salary: Salary.annual(100000.0))
+print("let researcher = Job(title: \"researcher\", salary: Salary.annual(100000.0))")
+print("print(researcher.description)")
+print("Output: \(researcher.description)")
+print("let me = Person(firstName: \"Tristan\", lastName: \"Shi\", age: 22, job: nil, spouse: nil)")
+let me = Person(firstName: "Tristan", lastName: "Shi", age: 22, job: nil, spouse: nil)
+print("let sibling = Person(firstName: \"John\", lastName: \"Shi\", age: 25, job: researcher, spouse: nil)")
+let sibling = Person(firstName: "John", lastName: "Shi", age: 25, job: researcher, spouse: nil)
+print("print(me.description)")
+print("Output:\n\(me.description)")
+print("print(sibling.description)")
+print("Output:\n\(sibling.description)")
+print("let myFamily = Family(members: [me, sibling])")
+let myFamily = Family(members: [me, sibling])
+print("print(myFamily.description)")
+print("Output: \(myFamily.description)")
+print("")
 print("")
 print("======Protocol Methods======")
 var oneBuck = 1.USD
 print("var oneBuck = 1.USD")
 oneBuck.add(1.GBP)
 print("oneBuck.add(1.GBP)")
+print("oneBuck.amount = \(oneBuck.amount)")
+oneBuck.subtract(2.CAN)
+print("oneBuck.subtract(2.CAN)")
 print("oneBuck.amount = \(oneBuck.amount)")
